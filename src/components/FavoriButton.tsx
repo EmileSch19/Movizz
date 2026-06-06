@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Film } from "../types/films"
+import { Film } from "../types/film"
 
 export default function FavoriButton({ film }: { film: Film }) {
   const [isFavori, setIsFavori] = useState(false)
