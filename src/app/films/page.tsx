@@ -3,11 +3,11 @@ import FilmCard from "@/components/FilmCard"
 import SearchBar from "@/components/SearchBar"
 
 interface Props {
-  searchParams: { q?: string }
+  searchParams: Promise<{ q?: string }>
 }
 
 export default async function FilmsPage({ searchParams }: Props) {
-  const query = searchParams.q
+  const { q: query } = await searchParams
 
   // Si un mot-clé est présent → recherche, sinon → films populaires
   const films = query
