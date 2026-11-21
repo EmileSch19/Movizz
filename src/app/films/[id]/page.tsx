@@ -2,15 +2,32 @@ import { getFilmById } from "@/lib/omdb"
 import FavoriButton from "@/components/FavoriButton"
 import Image from "next/image"
 import Link from "next/link"
+import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 
 interface Props {
   params: Promise<{ id: string }>
+}
+
+// Titre et description de l'onglet / des aperçus de lien
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const film = await getFilmById(id)
+  if (!film) return { title: "Film introuvable — Movizz" }
+  return {
+    title: `${film.Title} (${film.Year}) — Movizz`,
+    description: film.Plot !== "N/A" ? film.Plot : undefined,
+    openGraph: film.Poster !== "N/A" ? { images: [film.Poster] } : undefined,
+  }
 }
 
 export default async function FilmDetailPage({ params }: Props) {
   // En Next.js 15+, params est une Promise
   const { id } = await params
   const film = await getFilmById(id)
+
+  // ID inconnu → page 404 au lieu d'un plantage
+  if (!film) notFound()
 
   return (
     <div>
@@ -89,4 +106,4 @@ export default async function FilmDetailPage({ params }: Props) {
 
     </div>
   )
-}
+}

@@ -20,7 +20,7 @@ export default async function FilmsPage({ searchParams }: Props) {
       {/* Header + barre de recherche */}
       <section className="mb-8 flex flex-col gap-4">
         <h1 className="text-2xl font-bold text-gray-900">
-          {query ? `Résultats pour "${query}"` : "Tous les films"}
+          {query ? `Résultats pour « ${query} »` : "Tous les films"}
         </h1>
         <SearchBar />
       </section>
@@ -29,7 +29,7 @@ export default async function FilmsPage({ searchParams }: Props) {
       {films.length === 0 ? (
         // Aucun résultat trouvé
         <div className="mt-20 text-center text-gray-400">
-          Aucun film trouvé pour "{query}"
+          Aucun film trouvé pour « {query} »
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
