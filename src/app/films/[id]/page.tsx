@@ -37,7 +37,7 @@ export default async function FilmDetailPage({ params }: Props) {
 
       <div className="mt-6 flex flex-col gap-10 md:flex-row">
         {/* Affiche */}
-        <div className="relative aspect-[2/3] w-full shrink-0 overflow-hidden rounded-2xl bg-ink-soft shadow-[0_16px_40px_rgba(24,24,27,0.14)] md:w-80">
+        <div className="relative aspect-[2/3] w-2/3 max-w-xs shrink-0 self-center overflow-hidden rounded-2xl bg-ink-soft shadow-[0_16px_40px_rgba(24,24,27,0.14)] md:w-80 md:max-w-none md:self-start">
           {show(film.Poster) ? (
             <Image src={film.Poster} alt={`Affiche de ${film.Title}`} fill sizes="(min-width: 768px) 320px, 100vw" className="object-cover" priority />
           ) : (
