@@ -25,14 +25,23 @@ async function omdb(params: Record<string, string>, revalidate: number) {
   }
 }
 
-// Recherche des films par mot-clé
-export async function searchFilms(query: string): Promise<Film[]> {
-  const data = await omdb({ s: query, type: "movie" }, ONE_HOUR)
+// Recherche des films par mot-clé (10 résultats par page côté OMDB)
+export async function searchFilmsPage(
+  query: string,
+  page = 1,
+): Promise<{ films: Film[]; total: number }> {
+  const data = await omdb({ s: query, type: "movie", page: String(page) }, ONE_HOUR)
 
   // OMDB retourne Response: "False" si aucun résultat
-  if (!data || data.Response === "False") return []
-  return data.Search as Film[]
+  if (!data || data.Response === "False") return { films: [], total: 0 }
+  return { films: data.Search as Film[], total: Number(data.totalResults) || 0 }
 }
+
+export async function searchFilms(query: string): Promise<Film[]> {
+  return (await searchFilmsPage(query)).films
+}
+
+export const RESULTS_PER_PAGE = 10
 
 // Récupère les détails complets d'un film via son ID IMDB (null si introuvable)
 export async function getFilmById(id: string): Promise<Film | null> {
@@ -41,13 +50,27 @@ export async function getFilmById(id: string): Promise<Film | null> {
   return data as Film
 }
 
-// Page d'accueil : quelques sagas populaires, résultats mis en cache 24 h.
-// (Avant : 34 requêtes à chaque visite → quota épuisé en ~30 visites.)
-const POPULAR_QUERIES = ["star wars", "batman", "harry potter", "avengers", "dune", "interstellar"]
+// Collections de la page d'accueil. OMDB ne permet pas de filtrer une
+// recherche par genre : chaque collection est donc une sélection de titres,
+// résultats mis en cache 24 h. (Avant : 34 requêtes à chaque visite.)
+export const COLLECTIONS = {
+  populaires: { label: "Populaires", queries: ["star wars", "batman", "harry potter", "avengers", "dune", "interstellar"] },
+  "science-fiction": { label: "Science-fiction", queries: ["blade runner", "matrix", "interstellar", "arrival", "dune", "alien"] },
+  action: { label: "Action", queries: ["john wick", "mad max", "mission impossible", "die hard", "gladiator", "top gun"] },
+  animation: { label: "Animation", queries: ["spider-verse", "toy story", "shrek", "spirited away", "coco", "ratatouille"] },
+  drame: { label: "Drame", queries: ["godfather", "forrest gump", "oppenheimer", "whiplash", "parasite", "schindler"] },
+  comedie: { label: "Comédie", queries: ["grand budapest", "superbad", "intouchables", "hangover", "mask", "home alone"] },
+} as const
 
-export async function getPopularFilms(limit = 12): Promise<Film[]> {
+export type CollectionKey = keyof typeof COLLECTIONS
+
+export function isCollection(key: string | undefined): key is CollectionKey {
+  return !!key && key in COLLECTIONS
+}
+
+export async function getPopularFilms(limit = 12, collection: CollectionKey = "populaires"): Promise<Film[]> {
   const results = await Promise.all(
-    POPULAR_QUERIES.map((q) => omdb({ s: q, type: "movie" }, ONE_DAY)),
+    COLLECTIONS[collection].queries.map((q) => omdb({ s: q, type: "movie" }, ONE_DAY)),
   )
 
   // Fusionne en prenant les films à tour de rôle dans chaque saga, sans doublon

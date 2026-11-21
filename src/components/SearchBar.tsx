@@ -3,38 +3,50 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-export default function SearchBar() {
+interface Props {
+  /** Recherche en cours, pour pré-remplir le champ */
+  defaultValue?: string
+  /** Grande barre centrée (accueil) ou compacte (pages de résultats) */
+  size?: "lg" | "md"
+}
+
+export default function SearchBar({ defaultValue = "", size = "lg" }: Props) {
   // Valeur saisie dans l'input
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState(defaultValue)
   const router = useRouter()
 
   // Redirige vers la page films avec le mot-clé en paramètre URL
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     if (!query.trim()) return
-    router.push(`/films?q=${encodeURIComponent(query)}`)
+    router.push(`/films?q=${encodeURIComponent(query.trim())}`)
   }
 
-  return (
-    <form onSubmit={handleSearch} className="flex w-full max-w-xl gap-2">
+  const lg = size === "lg"
 
-      {/* Champ de recherche */}
+  return (
+    <form
+      onSubmit={handleSearch}
+      role="search"
+      className={`flex w-full gap-1.5 rounded-2xl border border-line bg-white p-1.5 ${
+        lg ? "max-w-2xl shadow-[0_8px_24px_rgba(24,24,27,0.06)]" : "max-w-xl"
+      }`}
+    >
+      <label htmlFor="recherche" className="sr-only">Rechercher un film</label>
       <input
-        type="text"
+        id="recherche"
+        type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Rechercher un film..."
-        className="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm outline-none transition focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
+        placeholder="Titre, saga…"
+        className={`min-w-0 flex-1 bg-transparent px-4 outline-none placeholder:text-muted/70 ${lg ? "h-12 text-base" : "h-11 text-sm"}`}
       />
-
-      {/* Bouton de recherche */}
       <button
         type="submit"
-        className="rounded-xl bg-purple-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-purple-600"
+        className={`rounded-xl bg-ink px-6 font-bold text-white transition hover:bg-ink/85 ${lg ? "h-12 text-[15px]" : "h-11 text-sm"}`}
       >
         Rechercher
       </button>
-
     </form>
   )
 }

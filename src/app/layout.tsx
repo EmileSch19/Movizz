@@ -1,13 +1,13 @@
 import type { Metadata } from "next"
-import { Geist } from "next/font/google"
+import { Plus_Jakarta_Sans } from "next/font/google"
 import Navbar from "@/components/Navbar"
 import "./globals.css"
 
-const geist = Geist({ subsets: ["latin"] })
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" })
 
 export const metadata: Metadata = {
-  title: "Movizz",
-  description: "Ta filmographie personnelle",
+  title: "Movizz — Trouve ton prochain film",
+  description: "Recherche, découvre et garde tes films préférés sous la main.",
 }
 
 export default function RootLayout({
@@ -16,17 +16,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr">
-      <body className={geist.className}>
-
+    <html lang="fr" className={jakarta.variable}>
+      <body className="font-sans antialiased">
         {/* Navbar affichée sur toutes les pages */}
         <Navbar />
 
         {/* Contenu de chaque page */}
-        <main className="mx-auto max-w-6xl px-6 py-8">
-          {children}
-        </main>
-
+        <main className="mx-auto max-w-6xl px-6 pb-20">{children}</main>
       </body>
     </html>
   )
